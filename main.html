@@ -1,0 +1,89 @@
+<!doctype html>
+<html>
+  <head>
+    <style>
+
+        table{
+          position: relative;
+          width: 50%;
+        }
+
+        table, th, td{
+          border: 0.1vw solid black;
+          border-collapse: collapse;
+          padding: 14px;
+          text-align: center;
+          transition: 0.2s ease;
+        }
+
+        #table_display{
+          position: absolute;
+          left: 0%;
+          top: 10%;
+          display: flex;
+          flex-direction: column;
+          gap: 100px;
+          width: 100%;
+          height: auto;
+          align-items: center;
+          justify-content: center;
+          padding-bottom: 50px;
+        }
+
+    </style>
+  </head>
+  <body>
+    <script type="module" src="main.mjs"></script>
+    <br/>
+    <label for="serialized_file">Upload serialized ntuple: </label><input type="file" id="serialized_file"/>
+    
+    <div id="table_display"></div>
+
+    <script type="module">
+      import { deserializeNTuple } from "./main.mjs";
+      let obj;
+      const mainTable = document.getElementById("table_display");
+      document.getElementById("serialized_file").addEventListener("change", (e) => {
+        for (let file of e.target.files) {
+          let reader = new FileReader();
+          reader.onload = () => {
+            obj = deserializeNTuple(reader.result);
+            console.log(obj.Pages.pageData[0].pageElementsArray[0]);
+            for(let i = 0; i < obj.Footer.numerOfPages; i++){
+          let tbl = document.createElement('table');
+          let thead = document.createElement('thead');
+          let th = document.createElement('th');
+          let tbody = document.createElement('tbody');
+          // let tr = document.createElement('tr');
+          // let td = document.createElement('td');
+          
+          for(let j = 0; j <= obj.Footer.pagesInfo[i].pageElements; j++){
+            let tr = document.createElement('tr');
+            tbody.appendChild(tr);
+            let td = document.createElement('td');
+            tr.appendChild(td);
+            if(j == obj.Footer.pagesInfo[i].pageElements){
+              td.textContent = "End of Page";
+              tr.appendChild(td);
+            }
+            if(obj.Footer.pagesInfo[i].pageNumber){th.textContent = "Page - " + obj.Footer.pagesInfo[i].pageNumber;}else{continue;}
+            if(obj.Pages.pageData[i].pageElementsArray[j]){td.textContent = obj.Pages.pageData[i].pageElementsArray[j];}else{continue;}
+          }
+          tbl.appendChild(thead);
+          thead.appendChild(th);
+          tbl.appendChild(tbody);
+          // tbody.appendChild(tr);
+          // tr.appendChild(td);
+          console.log(obj);
+          document.body.appendChild(tbl);
+          mainTable.appendChild(tbl);
+        }
+          };
+          reader.readAsArrayBuffer(file);
+          break;
+        }
+
+      });
+    </script>
+  </body>
+</html>
